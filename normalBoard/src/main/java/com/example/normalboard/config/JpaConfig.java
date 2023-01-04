@@ -1,4 +1,4 @@
-package com.example.normalboard;
+package com.example.normalboard.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
