@@ -27,6 +27,7 @@ class ArticleControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/articles"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML))
+                .andExpect(MockMvcResultMatchers.view().name("/articles/index"))
                 .andExpect(MockMvcResultMatchers.model().attributeExists("articles"));
     }
 
@@ -36,7 +37,9 @@ class ArticleControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/articles/1"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML))
-                .andExpect(MockMvcResultMatchers.model().attributeExists("article"));
+                .andExpect(MockMvcResultMatchers.view().name("/articles/detail"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("article"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("articleComments"));
     }
 
     @DisplayName("[View] [GET] 게시글 검색 전용 페이지 - 정상 호출")
@@ -44,6 +47,7 @@ class ArticleControllerTest {
     public void givenNothing_whenRequestArticleSearchView_thenReturnArticleSearchView() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders.get("/articles/search"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.view().name("/articles/search"))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML));
     }
 
@@ -52,6 +56,7 @@ class ArticleControllerTest {
     public void givenNothing_whenRequestArticleHashtagView_thenReturnArticleHashtagView() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders.get("/articles/hashtag"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.view().name("/articles/search-hashtag"))
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.TEXT_HTML));
     }
 
