@@ -200,3 +200,7 @@ insert into article_comment (content, created_at, created_by, modified_by, modif
 insert into article_comment (content, created_at, created_by, modified_by, modified_at, article_id) values ('Flipbug', '2022-01-28 06:09:57', 'Gretna', 'Clint', '2022-03-14 16:13:42', 98);
 insert into article_comment (content, created_at, created_by, modified_by, modified_at, article_id) values ('Oodoo', '2022-01-20 08:48:03', 'Eydie', 'Konstantin', '2022-01-31 13:43:21', 99);
 insert into article_comment (content, created_at, created_by, modified_by, modified_at, article_id) values ('Avaveo', '2022-08-02 23:12:09', 'Robbi', 'Nady', '2022-08-21 04:58:01', 100);
+
+
+insert into user_account (user_id, user_password, nickname, email, memo, created_at, created_by, modified_at, modified_by) values
+    ('uno', 'asdf1234', 'Uno', 'uno@mail.com', 'I am Uno.', now(), 'uno', now(), 'uno');
