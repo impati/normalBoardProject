@@ -16,7 +16,7 @@ import java.util.Objects;
 
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString
+@ToString(callSuper = true) //baseEntity 까지 ToString
 public class ArticleComment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +28,13 @@ public class ArticleComment extends BaseEntity{
     @Column(nullable = false,length = 500)
     private String content;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserAccount userAccount;
 
-    private ArticleComment(Article article, String content) {
-        this.article = article;
-        this.content = content;
+
+
+    public static ArticleComment of(UserAccount userAccount , Article article , String content){
+        return new ArticleComment(article,content,userAccount);
     }
 
     public static ArticleComment of(Article article , String content){
@@ -49,5 +52,16 @@ public class ArticleComment extends BaseEntity{
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private ArticleComment(Article article, String content) {
+        this.article = article;
+        this.content = content;
+    }
+
+    private ArticleComment(Article article, String content, UserAccount userAccount) {
+        this.article = article;
+        this.content = content;
+        this.userAccount = userAccount;
     }
 }
