@@ -37,8 +37,9 @@ public class ArticleComment extends BaseEntity{
         return new ArticleComment(article,content,userAccount);
     }
 
-    public static ArticleComment of(Article article , String content){
-        return new ArticleComment(article,content);
+
+    public static ArticleComment of(Article article, UserAccount userAccount, String content) {
+        return new ArticleComment(article,content,userAccount);
     }
 
     @Override
