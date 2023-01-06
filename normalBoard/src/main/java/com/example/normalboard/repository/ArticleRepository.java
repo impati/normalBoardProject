@@ -16,7 +16,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface ArticleRepository extends
         JpaRepository<Article,Long>,
         QuerydslPredicateExecutor<Article>, // 엔티티안에 있는 기본 검색 기능 추가
-        QuerydslBinderCustomizer<QArticle> //
+        QuerydslBinderCustomizer<QArticle>
 {
     @Override
     default void customize(QuerydslBindings bindings, QArticle root){
@@ -29,6 +29,15 @@ public interface ArticleRepository extends
         bindings.bind(root.createdBy).first(StringExpression::containsIgnoreCase);
     }
 
-    Page<Article> findByTitle(String title, Pageable pageable);
+    Page<Article> findByTitleContaining(String title, Pageable pageable);
+
+    Page<Article> findByUserAccount_UserIdContaining(String userId, Pageable pageable);
+
+    Page<Article> findByContentContaining(String content, Pageable pageable);
+
+    Page<Article> findByUserAccount_NicknameContaining(String nickname, Pageable pageable);
+
+    Page<Article> findByHashtag(String hashtag, Pageable pageable);
+
 
 }

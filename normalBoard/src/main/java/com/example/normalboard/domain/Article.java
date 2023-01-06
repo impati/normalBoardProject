@@ -1,6 +1,7 @@
 package com.example.normalboard.domain;
 
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.util.*;
@@ -37,8 +38,10 @@ public class Article extends BaseEntity{
     private Set<ArticleComment> articleComments = new LinkedHashSet<>();
 
 
-    public void updateContent(String content){
-        this.content = content ;
+    public void updateContent(String title, String content, String hashtag){
+        if(StringUtils.hasText(title)) this.title = title;
+        if(StringUtils.hasText(content)) this.content = content;
+        this.hashtag = hashtag;
     }
 
 
