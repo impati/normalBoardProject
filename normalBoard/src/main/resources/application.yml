@@ -14,7 +14,7 @@ spring:
         default_batch_fetch_size: 1000
     defer-datasource-initialization: true
     show-sql: true
-    open-in-view: true
+    open-in-view: false
   sql:
     init:
       mode: always
