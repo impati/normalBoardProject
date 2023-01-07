@@ -2,6 +2,7 @@ package com.example.normalboard.repository;
 
 import com.example.normalboard.config.JpaConfig;
 import com.example.normalboard.domain.Article;
+import com.example.normalboard.domain.UserAccount;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,8 @@ class JpaRepositoryTest {
     private ArticleRepository articleRepository;
     @Autowired
     private ArticleCommentRepository articleCommentRepository;
-
+    @Autowired
+    private UserAccountRepository userAccountRepository;
 
     @DisplayName("select Test")
     @Test
@@ -46,8 +48,9 @@ class JpaRepositoryTest {
         // build
 
         long previousCount = articleRepository.count();
+        UserAccount userAccount = userAccountRepository.save(UserAccount.of("uno", "pw", null, null, null));
+        Article article = Article.of(userAccount, "new article", "new content", "#spring");
 
-        Article article = Article.of("new Article","hello world");
         articleRepository.save(article);
 
         Assertions.assertThat(articleRepository.count())
@@ -64,7 +67,7 @@ class JpaRepositoryTest {
         Article article = Article.of("new Article","hello world");
         articleRepository.save(article);
 
-        article.updateContent(newContent);
+        article.updateContent(newContent,null,null);
 
         articleRepository.flush();
 
