@@ -47,9 +47,9 @@ public class ArticleController {
 
     @GetMapping("/{articleId}")
     public String returnArticleView(@PathVariable Long articleId, Model model){
-        ArticleWithCommentsDto article = articleService.getArticle(articleId);
-        model.addAttribute("article",ArticleWithCommentResponse.from(article));
-        model.addAttribute("articleComments", article.getArticleCommentDtos());
+        ArticleWithCommentResponse article = ArticleWithCommentResponse.from(articleService.getArticle(articleId));
+        model.addAttribute("article",article);
+        model.addAttribute("articleComments",article.getArticleCommentResponses());
         return "/articles/detail";
     }
 
