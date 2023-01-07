@@ -67,7 +67,7 @@ class JpaRepositoryTest {
         Article article = Article.of("new Article","hello world");
         articleRepository.save(article);
 
-        article.updateContent(newContent);
+        article.updateContent(newContent,null,null);
 
         articleRepository.flush();
 
