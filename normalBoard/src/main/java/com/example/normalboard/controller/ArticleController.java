@@ -8,6 +8,7 @@ import com.example.normalboard.dto.response.ArticleResponse;
 import com.example.normalboard.dto.response.ArticleWithCommentResponse;
 import com.example.normalboard.repository.ArticleRepository;
 import com.example.normalboard.service.ArticleService;
+import com.example.normalboard.service.PaginationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * /articles
@@ -34,14 +36,20 @@ import java.util.ArrayList;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final PaginationService paginationService;
 
-    @GetMapping()
+    @GetMapping
     public String returnArticlesView(
             @RequestParam(required = false) SearchType searchType,
             @RequestParam(required = false) String searchValue,
             @PageableDefault(size = 10, sort = "createdAt",direction = Sort.Direction.DESC) Pageable pageable,
             Model model){
-        model.addAttribute("articles",articleService.searchArticles(searchType, searchValue, pageable).map(ArticleResponse :: from));
+
+        Page<ArticleDto> articleResponse = articleService.searchArticles(searchType, searchValue, pageable);
+        List<Integer> barNumber = paginationService.getPaginationBarNumbers(pageable.getPageNumber(),articleResponse.getTotalPages());
+
+        model.addAttribute("articles",articleResponse.map(ArticleResponse :: from));
+        model.addAttribute("paginationBarNumbers",barNumber);
         return "/articles/index";
     }
 
