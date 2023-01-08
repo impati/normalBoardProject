@@ -58,6 +58,7 @@ public class ArticleController {
         ArticleWithCommentResponse article = ArticleWithCommentResponse.from(articleService.getArticle(articleId));
         model.addAttribute("article",article);
         model.addAttribute("articleComments",article.getArticleCommentResponses());
+        model.addAttribute("totalCount", articleService.getArticleCount());
         return "/articles/detail";
     }
 
