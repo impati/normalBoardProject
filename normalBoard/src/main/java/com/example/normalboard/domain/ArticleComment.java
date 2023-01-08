@@ -65,4 +65,8 @@ public class ArticleComment extends BaseEntity{
         this.content = content;
         this.userAccount = userAccount;
     }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
