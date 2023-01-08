@@ -1,6 +1,7 @@
 package com.example.normalboard.controller;
 
 import com.example.normalboard.config.SecurityConfig;
+import com.example.normalboard.domain.type.SearchType;
 import com.example.normalboard.dto.ArticleWithCommentsDto;
 import com.example.normalboard.dto.UserAccountDto;
 import com.example.normalboard.service.ArticleService;
@@ -63,6 +64,33 @@ class ArticleControllerTest {
         then(paginationService).should().getPaginationBarNumbers(anyInt(),anyInt());
         then(articleService).should().searchArticles(eq(null),eq(null),any(Pageable.class));
     }
+
+    @DisplayName("[View] [GET] 게시글 리스트 (게시판) 페이지 - 검색어와 함께 호출")
+    @Test
+    public void givenSearchKeyword_whenSearchingArticlesView_thenReturnArticlesVIew() throws Exception{
+
+
+        SearchType searchType = SearchType.TITLE;
+        String searchValue = "title";
+        given(articleService.searchArticles(eq(searchType),eq(searchValue),any(Pageable.class))).willReturn(Page.empty());
+        given(paginationService.getPaginationBarNumbers(anyInt(),anyInt())).willReturn(List.of());
+
+        mockMvc.perform(
+                get("/articles")
+                        .queryParam("searchType",searchType.name())
+                        .queryParam("searchValue",searchValue)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("/articles/index"))
+                .andExpect(model().attributeExists("articles"))
+                .andExpect(model().attributeExists("searchTypes"));
+
+        then(paginationService).should().getPaginationBarNumbers(anyInt(),anyInt());
+        then(articleService).should().searchArticles(eq(searchType),eq(searchValue),any(Pageable.class));
+    }
+
+
 
     @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 페이징, 정렬 기능")
     @Test
