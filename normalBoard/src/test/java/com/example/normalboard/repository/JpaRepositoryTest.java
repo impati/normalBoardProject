@@ -39,7 +39,7 @@ class JpaRepositoryTest {
 
         Assertions.assertThat(articles)
                 .isNotNull()
-                .hasSize(100);
+                .hasSize(123);
 
     }
     @DisplayName("insert Test")
@@ -48,7 +48,7 @@ class JpaRepositoryTest {
         // build
 
         long previousCount = articleRepository.count();
-        UserAccount userAccount = userAccountRepository.save(UserAccount.of("uno", "pw", null, null, null));
+        UserAccount userAccount = userAccountRepository.save(UserAccount.of("newUno", "pw", null, null, null));
         Article article = Article.of(userAccount, "new article", "new content", "#spring");
 
         articleRepository.save(article);
@@ -67,7 +67,7 @@ class JpaRepositoryTest {
         Article article = Article.of("new Article","hello world");
         articleRepository.save(article);
 
-        article.updateContent(newContent,null,null);
+        article.updateContent(newContent,newContent,null);
 
         articleRepository.flush();
 

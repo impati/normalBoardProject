@@ -139,13 +139,13 @@ class ArticleServiceTest {
     void givenNonexistentArticleInfo_whenUpdatingArticle_thenLogsWarningAndDoesNothing() {
         // Given
         ArticleDto dto = createArticleDto("새 타이틀", "새 내용", "#springboot");
-        given(articleRepository.findById(dto.getId())).willThrow(EntityNotFoundException.class);
+        given(articleRepository.getReferenceById(dto.getId())).willThrow(EntityNotFoundException.class);
 
         // When
         sut.updateArticle(dto);
 
         // Then
-        then(articleRepository).should().findById(dto.getId());
+        then(articleRepository).should().getReferenceById(dto.getId());
     }
 
     @DisplayName("게시글의 ID를 입력하면, 게시글을 삭제한다")
