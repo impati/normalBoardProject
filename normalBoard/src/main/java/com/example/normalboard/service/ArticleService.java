@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -92,5 +93,17 @@ public class ArticleService {
 
     public long getArticleCount() {
         return articleRepository.count();
+    }
+
+    public Page<ArticleDto> searchArticlesViaHashtag(String hashtag,Pageable pageable) {
+        if(!StringUtils.hasText(hashtag)) return Page.empty(pageable);
+        return articleRepository
+                .findByHashtag(hashtag,pageable)
+                .map(ArticleDto::from);
+    }
+
+    public List<String> getHashtags() {
+        return articleRepository
+                .findAllDistinctHashtags();
     }
 }
