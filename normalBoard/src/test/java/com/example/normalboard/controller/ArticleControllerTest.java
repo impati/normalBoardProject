@@ -1,6 +1,7 @@
 package com.example.normalboard.controller;
 
 import com.example.normalboard.config.SecurityConfig;
+import com.example.normalboard.domain.type.SearchType;
 import com.example.normalboard.dto.ArticleWithCommentsDto;
 import com.example.normalboard.dto.UserAccountDto;
 import com.example.normalboard.service.ArticleService;
@@ -64,6 +65,33 @@ class ArticleControllerTest {
         then(articleService).should().searchArticles(eq(null),eq(null),any(Pageable.class));
     }
 
+    @DisplayName("[View] [GET] 게시글 리스트 (게시판) 페이지 - 검색어와 함께 호출")
+    @Test
+    public void givenSearchKeyword_whenSearchingArticlesView_thenReturnArticlesVIew() throws Exception{
+
+
+        SearchType searchType = SearchType.TITLE;
+        String searchValue = "title";
+        given(articleService.searchArticles(eq(searchType),eq(searchValue),any(Pageable.class))).willReturn(Page.empty());
+        given(paginationService.getPaginationBarNumbers(anyInt(),anyInt())).willReturn(List.of());
+
+        mockMvc.perform(
+                get("/articles")
+                        .queryParam("searchType",searchType.name())
+                        .queryParam("searchValue",searchValue)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(view().name("/articles/index"))
+                .andExpect(model().attributeExists("articles"))
+                .andExpect(model().attributeExists("searchTypes"));
+
+        then(paginationService).should().getPaginationBarNumbers(anyInt(),anyInt());
+        then(articleService).should().searchArticles(eq(searchType),eq(searchValue),any(Pageable.class));
+    }
+
+
+
     @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 페이징, 정렬 기능")
     @Test
     void givenPagingAndSortingParams_whenSearchingArticlesPage_thenReturnsArticlesPage() throws Exception {
@@ -124,14 +152,40 @@ class ArticleControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
     }
 
-    @Disabled
     @DisplayName("[View] [GET] 게시글 해시 태그 검색 페이지 - 정상 호출")
     @Test
     public void givenNothing_whenRequestArticleHashtagView_thenReturnArticleHashtagView() throws Exception{
-        mockMvc.perform(get("/articles/hashtag"))
+        given(articleService.searchArticlesViaHashtag(eq(null),any(Pageable.class))).willReturn(Page.empty());
+
+        mockMvc.perform(get("/articles/search-hashtag"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/articles/search-hashtag"))
+                .andExpect(model().attribute("articles",Page.empty()))
+                .andExpect(model().attributeExists("hashtags"))
+                .andExpect(model().attributeExists("paginationBarNumbers"))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
+
+        then(articleService).should().searchArticlesViaHashtag(eq(null),any(Pageable.class));
+    }
+
+    @DisplayName("[View] [GET] 게시글 해시 태그 검색 페이지 - 정상 호출 , 해시태그 입력")
+    @Test
+    public void givenHashtag_whenRequestArticleHashtagView_thenReturnArticleHashtagView() throws Exception{
+        String hashTag = "#java";
+        given(articleService.searchArticlesViaHashtag(eq(hashTag),any(Pageable.class))).willReturn(Page.empty());
+
+        mockMvc.perform(
+                get("/articles/search-hashtag")
+                        .queryParam("searchValue",hashTag)
+                )
+                .andExpect(status().isOk())
+                .andExpect(view().name("/articles/search-hashtag"))
+                .andExpect(model().attribute("articles",Page.empty()))
+                .andExpect(model().attributeExists("hashtags"))
+                .andExpect(model().attributeExists("paginationBarNumbers"))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
+
+        then(articleService).should().searchArticlesViaHashtag(eq(hashTag),any(Pageable.class));
     }
 
     private ArticleWithCommentsDto createArticleWithCommentsDto() {
