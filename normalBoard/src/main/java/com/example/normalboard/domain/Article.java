@@ -27,6 +27,7 @@ public class Article extends BaseEntity{
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
     private UserAccount userAccount;
 
     private String hashtag;

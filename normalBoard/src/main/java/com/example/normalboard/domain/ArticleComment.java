@@ -29,6 +29,7 @@ public class ArticleComment extends BaseEntity{
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
     private UserAccount userAccount;
 
 
