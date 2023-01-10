@@ -2,6 +2,7 @@ package com.example.normalboard.dto;
 
 import com.example.normalboard.domain.Article;
 import com.example.normalboard.domain.ArticleComment;
+import com.example.normalboard.domain.UserAccount;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -38,12 +39,18 @@ public class ArticleCommentDto {
         return new ArticleCommentDto(id,articleId,userAccountDto,content,now,createdBy,modifiedAt,modifiedBy);
     }
 
-    public ArticleComment toEntity(Article entity) {
+    public static ArticleCommentDto of(Long articleId, UserAccountDto accountDto, String content) {
+        return new ArticleCommentDto(null,articleId,accountDto,content,null,null,null,null);
+    }
+
+    public ArticleComment toEntity(Article entity, UserAccount account) {
         return ArticleComment.of(
                 entity,
-                userAccountDto.toEntity(),
+                account,
                 content
         );
     }
+
+
 
 }
