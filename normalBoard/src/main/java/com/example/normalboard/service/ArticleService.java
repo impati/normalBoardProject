@@ -1,10 +1,12 @@
 package com.example.normalboard.service;
 
 import com.example.normalboard.domain.Article;
-import com.example.normalboard.domain.type.SearchType;
+import com.example.normalboard.domain.UserAccount;
+import com.example.normalboard.domain.constant.SearchType;
 import com.example.normalboard.dto.ArticleDto;
 import com.example.normalboard.dto.ArticleWithCommentsDto;
 import com.example.normalboard.repository.ArticleRepository;
+import com.example.normalboard.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,7 +17,6 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final UserAccountRepository userAccountRepository;
 
     @Transactional(readOnly = true)
     public Page<ArticleDto> searchArticles(SearchType searchType, String searchKeyword, Pageable pageable) {
@@ -64,26 +66,36 @@ public class ArticleService {
 
 
     @Transactional(readOnly = true)
-    public ArticleWithCommentsDto getArticle(Long articleId) {
+    public ArticleWithCommentsDto getArticleWithComments(Long articleId) {
         return articleRepository
                 .findById(articleId)
                 .map(ArticleWithCommentsDto::from)
                 .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다 - articleId: " + articleId));
     }
 
-    public void saveArticle(ArticleDto dto) {
-        articleRepository.save(dto.toEntity());
+
+    @Transactional(readOnly = true)
+    public ArticleDto getArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+                .map(ArticleDto::from)
+                .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다 - articleId: " + articleId));
     }
 
-    public void updateArticle(ArticleDto dto) {
+
+    public void saveArticle(ArticleDto dto) {
+        UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+        articleRepository.save(dto.toEntity(userAccount));
+    }
+
+    public void updateArticle(Long articleId,ArticleDto dto) {
         try{
-            tryToUpdateArticle(dto);
+            tryToUpdateArticle(articleId,dto);
         }catch (EntityNotFoundException e){
             log.warn("수정할 게시글이 없습니다.");
         }
     }
-    private void tryToUpdateArticle(ArticleDto dto){
-        Article article = articleRepository.getReferenceById(dto.getId());
+    private void tryToUpdateArticle(Long articleId,ArticleDto dto){
+        Article article = articleRepository.getReferenceById(articleId);
         article.updateContent(dto.getTitle(),dto.getContent(),dto.getHashtag());
     }
 
