@@ -1,9 +1,12 @@
 package com.example.normalboard.service;
 
+import com.example.normalboard.domain.Article;
 import com.example.normalboard.domain.ArticleComment;
+import com.example.normalboard.domain.UserAccount;
 import com.example.normalboard.dto.ArticleCommentDto;
 import com.example.normalboard.repository.ArticleCommentRepository;
 import com.example.normalboard.repository.ArticleRepository;
+import com.example.normalboard.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ public class ArticleCommentService {
 
     private final ArticleCommentRepository articleCommentRepository;
     private final ArticleRepository articleRepository;
+    private final UserAccountRepository userAccountRepository;
 
     @Transactional(readOnly = true)
     public List<ArticleCommentDto> searchArticleComments(Long articleId) {
@@ -34,7 +38,9 @@ public class ArticleCommentService {
 
     public void saveArticleComment(ArticleCommentDto dto) {
         try {
-            articleCommentRepository.save(dto.toEntity(articleRepository.getReferenceById(dto.getArticleId())));
+            Article article = articleRepository.getReferenceById(dto.getArticleId());
+            UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+            articleCommentRepository.save(dto.toEntity(article, userAccount));
         } catch (EntityNotFoundException e) {
             log.warn("댓글 저장 실패. 댓글의 게시글을 찾을 수 없습니다 - dto: {}", dto);
         }
@@ -47,9 +53,9 @@ public class ArticleCommentService {
             } catch (EntityNotFoundException e) {
                 log.warn("댓글 업데이트 실패. 댓글을 찾을 수 없습니다 - dto: {}", dto);
             }
-        }
+    }
 
-        public void deleteArticleComment(Long articleCommentId) {
+    public void deleteArticleComment(Long articleCommentId) {
             articleCommentRepository.deleteById(articleCommentId);
     }
 
