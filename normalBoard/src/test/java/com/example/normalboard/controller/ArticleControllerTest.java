@@ -172,15 +172,7 @@ class ArticleControllerTest {
         then(articleService).should().getArticleCount();
     }
 
-    @Disabled
-    @DisplayName("[View] [GET] 게시글 검색 전용 페이지 - 정상 호출")
-    @Test
-    public void givenNothing_whenRequestArticleSearchView_thenReturnArticleSearchView() throws Exception{
-        mockMvc.perform(get("/articles/search"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("/articles/search"))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
-    }
+
 
     @DisplayName("[View] [GET] 게시글 해시 태그 검색 페이지 - 정상 호출")
     @Test
