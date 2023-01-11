@@ -96,11 +96,15 @@ public class ArticleService {
     }
     private void tryToUpdateArticle(Long articleId,ArticleDto dto){
         Article article = articleRepository.getReferenceById(articleId);
-        article.updateContent(dto.getTitle(),dto.getContent(),dto.getHashtag());
+        UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+        if(article.getUserAccount().equals(userAccount))
+            article.updateContent(dto.getTitle(),dto.getContent(),dto.getHashtag());
+
     }
 
-    public void deleteArticle(Long id) {
-        articleRepository.deleteById(id);
+    public void deleteArticle(Long id , String userId) {
+
+        articleRepository.deleteByIdAndUserAccount_UserId(id,userId);
     }
 
     public long getArticleCount() {
