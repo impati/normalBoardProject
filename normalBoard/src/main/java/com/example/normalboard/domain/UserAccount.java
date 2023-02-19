@@ -44,11 +44,11 @@ public class UserAccount extends BaseEntity {
         if (this == o) return true;
         if (!(o instanceof UserAccount)) return false;
         UserAccount that = (UserAccount) o;
-        return Objects.equals(userId, that.userId);
+        return Objects.equals(this.getUserId(), that.getUserId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId);
+        return Objects.hash(this.getUserId());
     }
 }

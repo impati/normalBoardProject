@@ -67,13 +67,13 @@ public class Article extends BaseEntity{
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Article)) return false;
-        Article article = (Article) o;
-        return Objects.equals(id, article.id);
+        Article that = (Article) o;
+        return Objects.equals(this.getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(this.getId());
     }
 
     private Article (UserAccount userAccount ,String title,String content,String hashtag){
