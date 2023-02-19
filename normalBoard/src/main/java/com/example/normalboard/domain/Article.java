@@ -10,7 +10,6 @@ import java.util.*;
 @Getter
 @Table(indexes = {
         @Index(columnList = "title"),
-        @Index(columnList = "hashtag"),
         @Index(columnList = "createdAt")
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,10 +27,17 @@ public class Article extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
+    @Setter
     private UserAccount userAccount;
 
-    private String hashtag;
-
+    @ToString.Exclude
+    @JoinTable(
+            name = "article_hashtag",
+            joinColumns = @JoinColumn(name = "articleId"),
+            inverseJoinColumns = @JoinColumn(name = "hashtagId")
+    )
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    private Set<Hashtag> hashtags = new LinkedHashSet<>();
 
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "article",cascade = CascadeType.REMOVE)
@@ -39,15 +45,32 @@ public class Article extends BaseEntity{
     private Set<ArticleComment> articleComments = new LinkedHashSet<>();
 
 
-    public void updateContent(String title, String content, String hashtag){
+    public void addHashtag(Hashtag hashtag){
+        this.getHashtags().add(hashtag);
+    }
+
+    public void addHashtags(Collection<Hashtag> hashtags){
+        this.getHashtags().addAll(hashtags);
+    }
+
+    public void clearHashtag(){
+        this.getHashtags().clear();
+    }
+
+    private Article(String title, String content, UserAccount userAccount) {
+        this.title = title;
+        this.content = content;
+        this.userAccount = userAccount;
+    }
+
+    public void updateContent(String title, String content){
         if(StringUtils.hasText(title)) this.title = title;
         if(StringUtils.hasText(content)) this.content = content;
-        this.hashtag = hashtag;
     }
 
 
-    public static Article of(UserAccount userAccount, String title, String content, String hashtag) {
-        return new Article(userAccount, title, content, hashtag);
+    public static Article of(UserAccount userAccount, String title, String content) {
+        return new Article(title, content, userAccount);
     }
 
     public static Article of(String title , String content){
@@ -57,11 +80,6 @@ public class Article extends BaseEntity{
         return article;
     }
 
-    public static Article of(String title , String content,String hashtag){
-        Article article = of(title, content);
-        article.hashtag = hashtag;
-        return article;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -76,10 +94,4 @@ public class Article extends BaseEntity{
         return Objects.hash(this.getId());
     }
 
-    private Article (UserAccount userAccount ,String title,String content,String hashtag){
-        this.userAccount = userAccount;
-        this.title = title;
-        this.content = content;
-        this.hashtag = hashtag;
-    }
 }

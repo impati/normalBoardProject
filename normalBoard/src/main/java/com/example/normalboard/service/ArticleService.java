@@ -16,7 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @Slf4j
 @Service
@@ -47,9 +53,8 @@ public class ArticleService {
                     return articleRepository
                             .findByUserAccount_UserIdContaining(searchKeyword,pageable)
                             .map(ArticleDto :: from);
-                case HASHTAG:
-                    return articleRepository
-                            .findByHashtag("#" + searchKeyword,pageable)
+                case HASHTAG :
+                    return articleRepository.findByHashtagNames(Arrays.stream(searchKeyword.split(" ")).collect(toList()),pageable)
                             .map(ArticleDto :: from);
             }
         }
@@ -98,7 +103,7 @@ public class ArticleService {
         Article article = articleRepository.getReferenceById(articleId);
         UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
         if(article.getUserAccount().equals(userAccount))
-            article.updateContent(dto.getTitle(),dto.getContent(),dto.getHashtag());
+            article.updateContent(dto.getTitle(),dto.getContent());
 
     }
 
@@ -111,12 +116,14 @@ public class ArticleService {
         return articleRepository.count();
     }
 
-    public Page<ArticleDto> searchArticlesViaHashtag(String hashtag,Pageable pageable) {
-        if(!StringUtils.hasText(hashtag)) return Page.empty(pageable);
-        return articleRepository
-                .findByHashtag(hashtag,pageable)
-                .map(ArticleDto::from);
+    @Transactional(readOnly = true)
+    public Page<ArticleDto> searchArticlesViaHashtag(String hashtag, Pageable pageable) {
+        if (hashtag == null || hashtag.isBlank()) {
+            return Page.empty(pageable);
+        }
+        return articleRepository.findByHashtagNames(null, pageable).map(ArticleDto::from);
     }
+
 
     public List<String> getHashtags() {
         return articleRepository

@@ -1,6 +1,7 @@
 package com.example.normalboard.dto.response;
 
 import com.example.normalboard.dto.ArticleWithCommentsDto;
+import com.example.normalboard.dto.HashtagDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,15 +17,15 @@ public class ArticleWithCommentResponse {
     Long id;
     String title;
     String content;
-    String hashtag;
+    Set<String> hashtags;
     LocalDateTime createdAt;
     String email;
     String nickname;
     String userId;
     Set<ArticleCommentResponse> articleCommentResponses;
 
-    public static ArticleWithCommentResponse of(Long id, String title, String content, String hashtag, LocalDateTime createdAt, String email, String nickname, String userId, Set<ArticleCommentResponse> articleCommentResponses) {
-        return new ArticleWithCommentResponse(id, title, content, hashtag, createdAt, email, nickname, userId, articleCommentResponses);
+    public static ArticleWithCommentResponse of(Long id, String title, String content, Set<String> hashtags, LocalDateTime createdAt, String email, String nickname, String userId, Set<ArticleCommentResponse> articleCommentResponses) {
+        return new ArticleWithCommentResponse(id, title, content, hashtags, createdAt, email, nickname, userId, articleCommentResponses);
     }
 
     public static ArticleWithCommentResponse from(ArticleWithCommentsDto dto) {
@@ -36,8 +37,9 @@ public class ArticleWithCommentResponse {
         return new ArticleWithCommentResponse(
                 dto.getId(),
                 dto.getTitle(),
-                dto.getContent(),
-                dto.getHashtag(),
+                dto.getContent(),dto.getHashtagDtos().stream()
+                .map(HashtagDto::getHashtagName)
+                .collect(Collectors.toUnmodifiableSet()),
                 dto.getCreatedAt(),
                 dto.getUserAccountDto().getEmail(),
                 nickname,
