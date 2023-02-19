@@ -6,6 +6,7 @@ import com.example.normalboard.domain.constant.FormStatus;
 import com.example.normalboard.domain.constant.SearchType;
 import com.example.normalboard.dto.ArticleDto;
 import com.example.normalboard.dto.ArticleWithCommentsDto;
+import com.example.normalboard.dto.HashtagDto;
 import com.example.normalboard.dto.UserAccountDto;
 import com.example.normalboard.dto.request.ArticleRequest;
 import com.example.normalboard.dto.response.ArticleResponse;
@@ -72,7 +73,9 @@ class ArticleControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(view().name("/articles/index"))
                 .andExpect(model().attributeExists("articles"))
-                .andExpect(model().attributeExists("paginationBarNumbers"));
+                .andExpect(model().attributeExists("paginationBarNumbers"))
+                .andExpect(model().attributeExists("searchTypes"))
+                .andExpect(model().attribute("searchTypeHashtag", SearchType.HASHTAG));
 
 
         then(paginationService).should().getPaginationBarNumbers(anyInt(),anyInt());
@@ -90,9 +93,9 @@ class ArticleControllerTest {
         given(paginationService.getPaginationBarNumbers(anyInt(),anyInt())).willReturn(List.of());
 
         mockMvc.perform(
-                get("/articles")
-                        .queryParam("searchType",searchType.name())
-                        .queryParam("searchValue",searchValue)
+                        get("/articles")
+                                .queryParam("searchType", searchType.name())
+                                .queryParam("searchValue", searchValue)
                 )
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
@@ -166,7 +169,8 @@ class ArticleControllerTest {
                 .andExpect(view().name("/articles/detail"))
                 .andExpect(model().attributeExists("article"))
                 .andExpect(model().attributeExists("articleComments"))
-                .andExpect(model().attribute("totalCount", totalCount));
+                .andExpect(model().attribute("totalCount", totalCount))
+                .andExpect(model().attribute("searchTypeHashtag", SearchType.HASHTAG));
 
         then(articleService).should().getArticleWithComments(articleId);
         then(articleService).should().getArticleCount();
@@ -197,8 +201,8 @@ class ArticleControllerTest {
         given(articleService.searchArticlesViaHashtag(eq(hashTag),any(Pageable.class))).willReturn(Page.empty());
 
         mockMvc.perform(
-                get("/articles/search-hashtag")
-                        .queryParam("searchValue",hashTag)
+                        get("/articles/search-hashtag")
+                                .queryParam("searchValue", hashTag)
                 )
                 .andExpect(status().isOk())
                 .andExpect(view().name("/articles/search-hashtag"))
@@ -229,7 +233,7 @@ class ArticleControllerTest {
     @Test
     void givenNewArticleInfo_whenRequesting_thenSavesNewArticle() throws Exception {
         // Given
-        ArticleRequest articleRequest = ArticleRequest.of("new title", "new content", "#new");
+        ArticleRequest articleRequest = ArticleRequest.of("new title", "new content");
         willDoNothing().given(articleService).saveArticle(any(ArticleDto.class));
 
         // When & Then
@@ -283,7 +287,7 @@ class ArticleControllerTest {
     void givenUpdatedArticleInfo_whenRequesting_thenUpdatesNewArticle() throws Exception {
         // Given
         long articleId = 1L;
-        ArticleRequest articleRequest = ArticleRequest.of("new title", "new content", "#new");
+        ArticleRequest articleRequest = ArticleRequest.of("new title", "new content");
         willDoNothing().given(articleService).updateArticle(eq(articleId), any(ArticleDto.class));
 
         // When & Then
@@ -327,7 +331,7 @@ class ArticleControllerTest {
                 createUserAccountDto(),
                 "title",
                 "content",
-                "#java"
+                Set.of(HashtagDto.of("java"))
         );
     }
 
@@ -338,7 +342,7 @@ class ArticleControllerTest {
                 Set.of(),
                 "title",
                 "content",
-                "#java",
+                Set.of(HashtagDto.of("java")),
                 LocalDateTime.now(),
                 "uno",
                 LocalDateTime.now(),

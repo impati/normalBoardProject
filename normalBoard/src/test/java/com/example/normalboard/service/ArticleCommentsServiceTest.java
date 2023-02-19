@@ -2,6 +2,7 @@ package com.example.normalboard.service;
 
 import com.example.normalboard.domain.Article;
 import com.example.normalboard.domain.ArticleComment;
+import com.example.normalboard.domain.Hashtag;
 import com.example.normalboard.domain.UserAccount;
 import com.example.normalboard.dto.ArticleCommentDto;
 import com.example.normalboard.dto.UserAccountDto;
@@ -19,6 +20,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -169,7 +171,7 @@ class ArticleCommentServiceTest {
 
     private ArticleComment createArticleComment(String content) {
         return ArticleComment.of(
-                Article.of(createUserAccount(), "title", "content", "hashtag"),
+                createArticle(),
                 createUserAccount(),
                 content
         );
@@ -186,11 +188,17 @@ class ArticleCommentServiceTest {
     }
 
     private Article createArticle() {
-        return Article.of(
+        Article article = Article.of(
                 createUserAccount(),
                 "title",
-                "content",
-                "#java"
+                "content"
         );
+        article.addHashtags(Set.of(createHashtag(article)));
+
+        return article;
+    }
+
+    private Hashtag createHashtag(Article article) {
+        return Hashtag.of("java");
     }
 }
