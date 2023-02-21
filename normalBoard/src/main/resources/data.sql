@@ -677,6 +677,7 @@ insert into hashtag (hashtag_name, created_at, modified_at, created_by, modified
                                                                                          ('violet', now(), now(), 'uno', 'uno'),
                                                                                          ('yellow', now(), now(), 'uno', 'uno'),
                                                                                          ('white', now(), now(), 'uno', 'uno')
+
 ;
 
 insert into article_hashtag (article_id, hashtag_id) values

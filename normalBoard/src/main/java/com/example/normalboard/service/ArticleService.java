@@ -1,11 +1,13 @@
 package com.example.normalboard.service;
 
 import com.example.normalboard.domain.Article;
+import com.example.normalboard.domain.Hashtag;
 import com.example.normalboard.domain.UserAccount;
 import com.example.normalboard.domain.constant.SearchType;
 import com.example.normalboard.dto.ArticleDto;
 import com.example.normalboard.dto.ArticleWithCommentsDto;
 import com.example.normalboard.repository.ArticleRepository;
+import com.example.normalboard.repository.HashtagRepository;
 import com.example.normalboard.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
@@ -32,6 +31,8 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final UserAccountRepository userAccountRepository;
+    private final HashtagService hashtagService;
+    private final HashtagRepository hashtagRepository;
 
     @Transactional(readOnly = true)
     public Page<ArticleDto> searchArticles(SearchType searchType, String searchKeyword, Pageable pageable) {
@@ -89,7 +90,34 @@ public class ArticleService {
 
     public void saveArticle(ArticleDto dto) {
         UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
-        articleRepository.save(dto.toEntity(userAccount));
+
+        Set<Hashtag> hashtags = renewHashtagsFrom(dto.getContent());
+
+        Article article = dto.toEntity(userAccount);
+
+        article.addHashtags(hashtags);
+
+        articleRepository.save(article);
+    }
+
+    private Set<Hashtag> renewHashtagsFrom(String content) {
+
+        Set<String> hashtagNamesInContent = hashtagService.parseHashtagNames(content);
+
+        Set<Hashtag> hashtags = hashtagService.findHashtagsByNames(hashtagNamesInContent);
+
+        Set<String> existingHashtagNames = hashtags
+                .stream()
+                .map(Hashtag::getHashtagName)
+                .collect(toSet());
+
+        hashtags.addAll(hashtagNamesInContent
+                .stream()
+                .filter(ele->!existingHashtagNames.contains(ele))
+                .map(Hashtag::of)
+                .collect(toList()));
+
+        return hashtags;
     }
 
     public void updateArticle(Long articleId,ArticleDto dto) {
@@ -99,17 +127,40 @@ public class ArticleService {
             log.warn("수정할 게시글이 없습니다.");
         }
     }
+
     private void tryToUpdateArticle(Long articleId,ArticleDto dto){
         Article article = articleRepository.getReferenceById(articleId);
         UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
-        if(article.getUserAccount().equals(userAccount))
+        if(article.getUserAccount().equals(userAccount)){
+
             article.updateContent(dto.getTitle(),dto.getContent());
+
+            Set<Long> hashtagIds = article.getHashtags()
+                    .stream().map(Hashtag::getId)
+                    .collect(toUnmodifiableSet());
+
+            article.clearHashtag();
+
+            articleRepository.flush();
+
+            hashtagService.deleteAllHashtagWithoutArticles(hashtagIds);
+
+            article.addHashtags(renewHashtagsFrom(dto.getContent()));
+        }
 
     }
 
-    public void deleteArticle(Long id , String userId) {
+    public void deleteArticle(Long articleId , String userId) {
+        Article article = articleRepository.getReferenceById(articleId);
 
-        articleRepository.deleteByIdAndUserAccount_UserId(id,userId);
+        Set<Long> hashtagIds = article.getHashtags()
+                .stream().map(Hashtag::getId)
+                .collect(toUnmodifiableSet());
+
+        articleRepository.deleteByIdAndUserAccount_UserId(articleId,userId);
+        articleRepository.flush();
+
+        hashtagService.deleteAllHashtagWithoutArticles(hashtagIds);
     }
 
     public long getArticleCount() {
@@ -117,16 +168,16 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ArticleDto> searchArticlesViaHashtag(String hashtag, Pageable pageable) {
-        if (hashtag == null || hashtag.isBlank()) {
+    public Page<ArticleDto> searchArticlesViaHashtag(String hashtagName, Pageable pageable) {
+
+        if (hashtagName == null || hashtagName.isBlank()) {
             return Page.empty(pageable);
         }
-        return articleRepository.findByHashtagNames(null, pageable).map(ArticleDto::from);
+        return articleRepository.findByHashtagNames(List.of(hashtagName), pageable).map(ArticleDto::from);
     }
 
 
     public List<String> getHashtags() {
-        return articleRepository
-                .findAllDistinctHashtags();
+        return hashtagRepository.findAllHashtagNames(); //TODO : 해시태그 서비스에 위임하는 것을 고려
     }
 }

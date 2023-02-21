@@ -44,7 +44,7 @@ public class Hashtag extends BaseEntity{
         if (this == o) return true;
         if (!(o instanceof Hashtag)) return false;
         Hashtag that = (Hashtag) o;
-        return Objects.equals(this.getId(), that.getId());
+        return this.getId() != null && Objects.equals(this.getId(), that.getId());
     }
 
     @Override
