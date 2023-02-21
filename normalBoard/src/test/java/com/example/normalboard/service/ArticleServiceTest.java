@@ -241,7 +241,7 @@ class ArticleServiceTest {
         given(articleRepository.getReferenceById(dto.getId())).willReturn(article);
         given(userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId())).willReturn(dto.getUserAccountDto().toEntity());
         willDoNothing().given(articleRepository).flush();
-        willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
+        willDoNothing().given(hashtagService).deleteAllHashtagWithoutArticles(any());
         given(hashtagService.parseHashtagNames(dto.getContent())).willReturn(expectedHashtagNames);
         given(hashtagService.findHashtagsByNames(expectedHashtagNames)).willReturn(expectedHashtags);
 
@@ -259,7 +259,7 @@ class ArticleServiceTest {
         then(articleRepository).should().getReferenceById(dto.getId());
         then(userAccountRepository).should().getReferenceById(dto.getUserAccountDto().getUserId());
         then(articleRepository).should().flush();
-        then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
+        then(hashtagService).should().deleteAllHashtagWithoutArticles(any());
         then(hashtagService).should().parseHashtagNames(dto.getContent());
         then(hashtagService).should().findHashtagsByNames(expectedHashtagNames);
 
@@ -310,7 +310,7 @@ class ArticleServiceTest {
         given(articleRepository.getReferenceById(articleId)).willReturn(createArticle());
         willDoNothing().given(articleRepository).deleteByIdAndUserAccount_UserId(articleId, userId);
         willDoNothing().given(articleRepository).flush();
-        willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
+        willDoNothing().given(hashtagService).deleteAllHashtagWithoutArticles(any());
 
         // When
         sut.deleteArticle(1L, userId);
@@ -319,7 +319,7 @@ class ArticleServiceTest {
         then(articleRepository).should().getReferenceById(articleId);
         then(articleRepository).should().deleteByIdAndUserAccount_UserId(articleId, userId);
         then(articleRepository).should().flush();
-        then(hashtagService).should(times(2)).deleteHashtagWithoutArticles(any());
+        then(hashtagService).should().deleteAllHashtagWithoutArticles(any());
     }
 
     @DisplayName("게시글 수를 조회하면, 게시글 수를 반환한다.")

@@ -50,6 +50,8 @@ public class ArticleController {
         model.addAttribute("articles",articleResponse.map(ArticleResponse :: from));
         model.addAttribute("searchTypes",SearchType.values());
         model.addAttribute("paginationBarNumbers",barNumber);
+        model.addAttribute("searchTypeHashtag",SearchType.HASHTAG);
+
         return "/articles/index";
     }
 
@@ -60,6 +62,7 @@ public class ArticleController {
         model.addAttribute("article",article);
         model.addAttribute("articleComments",article.getArticleCommentResponses());
         model.addAttribute("totalCount", articleService.getArticleCount());
+        model.addAttribute("searchTypeHashtag",SearchType.HASHTAG);
         return "/articles/detail";
     }
 
