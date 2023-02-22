@@ -50,7 +50,6 @@ public class ArticleCommentService {
                 articleCommentRepository.save(articleComment);
             }
 
-            articleCommentRepository.save(dto.toEntity(article, userAccount));
         } catch (EntityNotFoundException e) {
             log.warn("댓글 저장 실패. 댓글의 게시글을 찾을 수 없습니다 - dto: {}", dto);
         }

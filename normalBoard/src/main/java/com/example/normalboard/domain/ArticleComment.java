@@ -33,7 +33,7 @@ public class ArticleComment extends BaseEntity{
     private UserAccount userAccount;
 
     @Setter
-    @Column(updatable = false)
+    @Column
     private Long parentCommentId;
 
     @ToString.Exclude

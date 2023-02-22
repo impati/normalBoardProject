@@ -10,7 +10,7 @@ import lombok.Data;
 public class ArticleCommentRequest {
 
     private Long articleId;
-    private Long articleCommentId;
+    private Long parentCommentId;
     private String content;
 
     public static ArticleCommentRequest of(Long articleId,Long articleCommentId,String content){
@@ -24,7 +24,7 @@ public class ArticleCommentRequest {
     public ArticleCommentDto toDto(UserAccountDto accountDto){
         return ArticleCommentDto.of(
                 articleId,
-                articleCommentId,
+                parentCommentId,
                 accountDto,
                 content
                 );
