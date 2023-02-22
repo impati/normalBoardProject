@@ -1,12 +1,12 @@
 package com.example.normalboard.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@ToString(callSuper = true) //baseEntity 까지 ToString
+@ToString(callSuper = true)
 public class ArticleComment extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,15 +32,30 @@ public class ArticleComment extends BaseEntity{
     @JoinColumn(name = "userId")
     private UserAccount userAccount;
 
+    @Setter
+    @Column(updatable = false)
+    private Long parentCommentId;
+
+    @ToString.Exclude
+    @OrderBy("createdAt ASC")
+    @OneToMany(mappedBy = "parentCommentId",cascade = CascadeType.ALL) // 부모 댓글이 지워진다면 자식 댓글을 모두 삭제
+    private Set<ArticleComment> childComments = new LinkedHashSet<>();
 
 
-    public static ArticleComment of(UserAccount userAccount , Article article , String content){
-        return new ArticleComment(article,content,userAccount);
+    public void addChildComment(ArticleComment child){
+        child.setParentCommentId(this.getId());
+        this.getChildComments().add(child);
     }
 
+    public static ArticleComment of(UserAccount userAccount , Article article , String content){
+        return new ArticleComment(article,content,userAccount,null);
+    }
 
-    public static ArticleComment of(Article article, UserAccount userAccount, String content) {
-        return new ArticleComment(article,content,userAccount);
+    private ArticleComment(Article article, String content, UserAccount userAccount, Long parentCommentId) {
+        this.article = article;
+        this.content = content;
+        this.userAccount = userAccount;
+        this.parentCommentId = parentCommentId;
     }
 
     @Override
@@ -48,17 +63,12 @@ public class ArticleComment extends BaseEntity{
         if (this == o) return true;
         if (!(o instanceof ArticleComment)) return false;
         ArticleComment that = (ArticleComment) o;
-        return Objects.equals(this.getId(), that.getId());
+        return this.getId() != null && Objects.equals(this.getId(), that.getId());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(this.getId());
-    }
-
-    private ArticleComment(Article article, String content) {
-        this.article = article;
-        this.content = content;
     }
 
     private ArticleComment(Article article, String content, UserAccount userAccount) {

@@ -43,10 +43,10 @@ public class ArticleCommentDto {
         return new ArticleCommentDto(null,articleId,accountDto,content,null,null,null,null);
     }
 
-    public ArticleComment toEntity(Article entity, UserAccount account) {
+    public ArticleComment toEntity(Article article, UserAccount account) {
         return ArticleComment.of(
-                entity,
                 account,
+                article,
                 content
         );
     }

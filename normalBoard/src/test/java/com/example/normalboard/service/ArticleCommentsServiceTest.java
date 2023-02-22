@@ -171,8 +171,8 @@ class ArticleCommentServiceTest {
 
     private ArticleComment createArticleComment(String content) {
         return ArticleComment.of(
-                createArticle(),
                 createUserAccount(),
+                createArticle(),
                 content
         );
     }
