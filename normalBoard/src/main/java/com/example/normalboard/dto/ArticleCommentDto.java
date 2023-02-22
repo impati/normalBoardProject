@@ -15,6 +15,7 @@ import static java.time.LocalTime.now;
 public class ArticleCommentDto {
     private Long id;
     private Long articleId;
+    private Long parentCommentId;
     private  UserAccountDto userAccountDto;
     private String content;
     private LocalDateTime createdAt;
@@ -26,6 +27,7 @@ public class ArticleCommentDto {
         return new ArticleCommentDto(
                 entity.getId(),
                 entity.getArticle().getId(),
+                entity.getParentCommentId(),
                 UserAccountDto.from(entity.getUserAccount()),
                 entity.getContent(),
                 entity.getCreatedAt(),
@@ -35,18 +37,27 @@ public class ArticleCommentDto {
         );
     }
 
+
     public static ArticleCommentDto of(Long id, Long articleId, UserAccountDto userAccountDto, String content, LocalDateTime now, String createdBy, LocalDateTime modifiedAt, String modifiedBy) {
-        return new ArticleCommentDto(id,articleId,userAccountDto,content,now,createdBy,modifiedAt,modifiedBy);
+        return new ArticleCommentDto(id,articleId,null,userAccountDto,content,now,createdBy,modifiedAt,modifiedBy);
+    }
+
+    public static ArticleCommentDto of(Long id, Long articleId, Long parentCommentId , UserAccountDto userAccountDto, String content, LocalDateTime now, String createdBy, LocalDateTime modifiedAt, String modifiedBy) {
+        return new ArticleCommentDto(id,articleId,parentCommentId,userAccountDto,content,now,createdBy,modifiedAt,modifiedBy);
     }
 
     public static ArticleCommentDto of(Long articleId, UserAccountDto accountDto, String content) {
-        return new ArticleCommentDto(null,articleId,accountDto,content,null,null,null,null);
+        return new ArticleCommentDto(null,articleId,null,accountDto,content,null,null,null,null);
     }
 
-    public ArticleComment toEntity(Article entity, UserAccount account) {
+    public static ArticleCommentDto of(Long articleId,Long parentCommentId, UserAccountDto accountDto, String content) {
+        return new ArticleCommentDto(null,articleId,parentCommentId,accountDto,content,null,null,null,null);
+    }
+
+    public ArticleComment toEntity(Article article, UserAccount account) {
         return ArticleComment.of(
-                entity,
                 account,
+                article,
                 content
         );
     }
