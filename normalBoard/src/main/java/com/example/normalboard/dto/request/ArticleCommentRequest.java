@@ -8,16 +8,23 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ArticleCommentRequest {
+
     private Long articleId;
+    private Long articleCommentId;
     private String content;
 
+    public static ArticleCommentRequest of(Long articleId,Long articleCommentId,String content){
+        return new ArticleCommentRequest(articleId,articleCommentId,content);
+    }
+
     public static ArticleCommentRequest of(Long articleId,String content){
-        return new ArticleCommentRequest(articleId,content);
+        return new ArticleCommentRequest(articleId,null,content);
     }
 
     public ArticleCommentDto toDto(UserAccountDto accountDto){
         return ArticleCommentDto.of(
                 articleId,
+                articleCommentId,
                 accountDto,
                 content
                 );
