@@ -20,18 +20,18 @@ public abstract class BaseEntity {
 
     @Column(updatable = false,nullable = false)
     @CreatedBy
-    private String createdBy;
+    protected String createdBy;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(updatable = false,nullable = false)
     @CreatedDate
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @LastModifiedDate
-    private LocalDateTime modifiedAt;
+    protected LocalDateTime modifiedAt;
 
     @LastModifiedBy
-    private String modifiedBy;
+    protected String modifiedBy;
 
 }
